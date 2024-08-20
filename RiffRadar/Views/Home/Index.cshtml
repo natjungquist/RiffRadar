@@ -1,0 +1,66 @@
+﻿@{
+    ViewData["Title"] = "Profile";
+}
+
+@model RiffRadar.Models.DataTransfer.HomeIndexView
+
+<div class="d-4">
+    <br />
+    <h4>hello, @Model.UserProfile.display_name.</h4>
+
+    @*    <div>
+    <img src="@Url.Content(Model.UserProfile.images[0].url)" alt="Profile Image"
+    style="height=200px;
+    width:200px;
+    border-radius:50%;" />
+    </div>*@
+
+    <div>
+        <h4>what's on your radar?</h4>
+    </div>
+
+    @if (Model.TotalGenres != null) {
+        <h5>your top songs consist of @Model.TotalGenres total genres.</h5>
+    }
+
+    @if (Model.FilteredTracks != null)
+    {
+        <div>
+            <h5>here are your top tracks filtered on the genres you selected</h5>
+            <table>
+                <tbody>
+                    @foreach (string track in Model.FilteredTracks)
+                    {
+                        
+                        <tr>
+                            <td>@track</td>
+                        </tr>
+                        
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@*search for which genre to include with a checkbox list*@
+@if (Model.AllGenres != null)
+{
+    <div class="d-4">
+        <h4>create a playlist of your favorite tracks, filtered by genre</h4>
+        <p>select which genres you'd like to include.</p>
+
+        <form asp-action="FilterByGenre" asp-controller="Home" method="post">
+            @foreach (var genre in Model.AllGenres)
+            {
+                    <div>
+                        <input type="checkbox" name="selectedGenres" value="@genre" />
+                        <label>@genre</label>
+                    </div>
+            }
+
+            <button class="btn-login" type="submit">Submit</button>
+        </form>
+    </div>
+}
+

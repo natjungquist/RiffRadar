@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33205.214
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RiffRadar", "RiffRadar\RiffRadar.csproj", "{B27B4B3B-1D56-46D6-8CFF-EBBFADEE1333}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B27B4B3B-1D56-46D6-8CFF-EBBFADEE1333}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B27B4B3B-1D56-46D6-8CFF-EBBFADEE1333}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B27B4B3B-1D56-46D6-8CFF-EBBFADEE1333}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B27B4B3B-1D56-46D6-8CFF-EBBFADEE1333}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1EB2DC1A-D493-468C-9498-8DCD3194A86B}
+	EndGlobalSection
+EndGlobal

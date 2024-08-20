@@ -1,0 +1,51 @@
+:root {
+    --rr-font: sans-serif;
+    --poppins: 'Poppins', sans-serif;
+}
+
+html {
+    font-size: 14px;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    margin-bottom: 60px;
+}
+
+.d-4 {
+    font-family: var(--poppins);
+    justify-content: center;
+}
+
+.btn-login {
+    font-family: var(--poppins);
+    background-color: mistyrose;
+    border: none;
+    border-radius: 25px;
+    color: black;
+    padding: 8px 16px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+}
+
+.container {
+    width: 100%;
+    padding-right: var(--bs-gutter-x, 0.75rem);
+    padding-left: var(--bs-gutter-x, 0.75rem);
+    margin-right: auto;
+    margin-left: auto;
+}
