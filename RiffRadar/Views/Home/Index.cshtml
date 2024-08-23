@@ -4,9 +4,9 @@
 
 @model RiffRadar.Models.DataTransfer.HomeIndexView
 
-<div class="d-4">
+<div class="container">
     <br />
-    <h4>hello, @Model.UserProfile.display_name.</h4>
+    <h4>Hello, @Model.UserProfile.display_name.</h4>
 
     @*    <div>
     <img src="@Url.Content(Model.UserProfile.images[0].url)" alt="Profile Image"
@@ -16,51 +16,79 @@
     </div>*@
 
     <div>
-        <h4>what's on your radar?</h4>
+        Welcome to RiffRadar!
+        Here you can see your top genres and create playlists of your favorite tracks, filtered by genre.
+    </div>
+
+    <div>
+        <h4>What's on your radar?</h4>
     </div>
 
     @if (Model.TotalGenres != null) {
-        <h5>your top songs consist of @Model.TotalGenres total genres.</h5>
+        <h5>Your top songs consist of @Model.TotalGenres total genres.</h5>
     }
+</div>
 
+<div class="container">
     @if (Model.FilteredTracks != null)
     {
         <div>
-            <h5>here are your top tracks filtered on the genres you selected</h5>
+            <h5>Here are your top tracks filtered on the genres you selected.</h5>
             <table>
                 <tbody>
                     @foreach (string track in Model.FilteredTracks)
                     {
-                        
                         <tr>
                             <td>@track</td>
                         </tr>
-                        
                     }
                 </tbody>
             </table>
         </div>
+        <button class="btn-login" type="submit" data-bs-toggle="modal" data-bs-target="#playlistPopup">Create Playlist</button>
     }
 </div>
 
-@*search for which genre to include with a checkbox list*@
-@if (Model.AllGenres != null)
-{
-    <div class="d-4">
-        <h4>create a playlist of your favorite tracks, filtered by genre</h4>
-        <p>select which genres you'd like to include.</p>
+<div class="modal fade" id="playlistPopup" tabindex="-1" aria-labelledby="playlistPopupLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="playlistPopupLabel">Give your playlist a name</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="CreatePlaylist" asp-controller="Home" method="post">
+                    <div class="mb-3">
+                        <label for="playlistName" class="form-label"></label>
+                        <input type="text" class="form-control" id="playlistName" name="playlistName" />
+                    </div>
+                    <button type="submit" class="btn btn-login">Create</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
-        <form asp-action="FilterByGenre" asp-controller="Home" method="post">
-            @foreach (var genre in Model.AllGenres)
-            {
+
+<div class="container">
+    @*search for which genre to include with a checkbox list*@
+    @if (Model.AllGenres != null)
+    {
+        <div class="d-4">
+            <p>Select which genres you'd like to include.</p>
+
+            <form asp-action="FilterByGenre" asp-controller="Home" method="post">
+                @foreach (var genre in Model.AllGenres)
+                {
                     <div>
                         <input type="checkbox" name="selectedGenres" value="@genre" />
                         <label>@genre</label>
                     </div>
-            }
+                }
 
-            <button class="btn-login" type="submit">Submit</button>
-        </form>
-    </div>
-}
+                <button class="btn-login" type="submit">Submit</button>
+            </form>
+        </div>
+    }
+</div>
 

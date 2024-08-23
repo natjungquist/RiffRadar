@@ -36,9 +36,8 @@ namespace RiffRadar.Controllers
             var authorizationUrl = $"https://accounts.spotify.com/authorize?client_id={clientId}" +
             $"&response_type=code" +
             $"&redirect_uri={redirectUri}" +
-            $"&scope={scope}"; 
-            //+
-            //$"&show_dialog=true";
+            $"&scope={scope}" +
+            $"&show_dialog=true";
             return Redirect(authorizationUrl.ToString());
         }
 

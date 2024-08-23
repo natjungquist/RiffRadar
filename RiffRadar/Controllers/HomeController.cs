@@ -100,6 +100,11 @@ namespace RiffRadar.Controllers
             return View("Index", homeIndexView);
         }
 
+        public IActionResult CreatePlaylist(List<string> tracks, string playlistName) { 
+            
+            return View("Index"); 
+        }
+
         /// <summary>
         ///     Action method occurs when user hits Logout.
         /// </summary>
