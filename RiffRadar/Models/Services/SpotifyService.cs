@@ -102,10 +102,10 @@ namespace RiffRadar.Models.Services
             }
         }
 
-        public async Task<Playlist> CreatePlaylist(string playlistName, List<string> filteredTracksUris, string userId, string accessToken)
+        public async Task<Playlist> CreatePlaylist(string playlistName, List<string> trackUris, string userId, string accessToken)
         {
             Playlist newPlaylist = await CreateEmptyPlaylist(playlistName, userId, accessToken);
-            string snapshot_id = await AddTracks(newPlaylist.id, filteredTracksUris, accessToken);
+            string snapshot_id = await AddTracks(newPlaylist.id, trackUris, accessToken);
 
             return newPlaylist;
         }

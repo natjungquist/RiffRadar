@@ -9,6 +9,7 @@ using System.Linq;
 using Microsoft.AspNetCore.Http.Features;
 using RiffRadar.Models.Data.Responses;
 using System.Runtime.ConstrainedExecution;
+using Microsoft.AspNetCore.Diagnostics;
 
 namespace RiffRadar.Controllers
 {
@@ -56,6 +57,7 @@ namespace RiffRadar.Controllers
         /// <summary>
         ///     Redirect here after collecting user information.
         /// </summary>
+        [Route("Home")]
         public async Task<IActionResult> Index()
         {
             if (!_memory.TryGetValue("User", out User user))
@@ -77,6 +79,7 @@ namespace RiffRadar.Controllers
         /// <summary>
         ///     Action method occurs when the user hits "Submit" after selecting genres.
         /// </summary>
+        [HttpPost]
         public IActionResult FilterByGenre(List<string> selectedGenres)
         {
             if (!_memory.TryGetValue("User", out User user))
@@ -101,20 +104,28 @@ namespace RiffRadar.Controllers
         /// <summary>
         ///     Call the Spotify Web API to create a playlist based on the tracks displayed on screen.
         /// </summary>
+        [HttpPost]
         public async Task<IActionResult> CreatePlaylist(string playlistName)
         {
+            // validate playlist name
+            if (string.IsNullOrEmpty(playlistName)) {
+                ViewBag.ErrorTitle = "Invalid input.";
+                ViewBag.ErrorMessage = "The playlist cannot be created. It must have a name.";
+                ErrorViewModel err = new()
+                {
+                    RequestId = "404"
+                };
+                return View("Error", err);
+            }
 
-            // TODO validate playlist name
-            //if (playlistName != null) { 
-            //}
-
+            //validate session
             if (!_memory.TryGetValue("User", out User user))
             {
                 return RedirectToAction("RequestSpotifyUserAuthorization", "Auth");
             }
-            List<string> FilteredTracksUris = new();
 
             // check which tracks to look at
+            List<string> trackUris = new();
             ChainingTable userTracks = new();
             if (user.FilteredTracksDict != null)
             {
@@ -122,15 +133,13 @@ namespace RiffRadar.Controllers
             }
             else if (user.TracksDict != null)
             {
-
                 userTracks = user.TracksDict;
             }
             foreach (Track track in userTracks.GetKeys())
             {
-                FilteredTracksUris.Add(track.uri);
+                trackUris.Add(track.uri);
             }
-
-            Playlist newPlaylist = await _spotifyService.CreatePlaylist(playlistName, FilteredTracksUris, user.UserProfile.id, user.AuthAccessToken);
+            Playlist newPlaylist = await _spotifyService.CreatePlaylist(playlistName, trackUris, user.UserProfile.id, user.AuthAccessToken);
             user.UserPlaylists = await _spotifyService.GetUserPlaylists(user.UserProfile.id, user.AuthAccessToken);
 
             HomeIndexView homeIndexView = new()
@@ -138,15 +147,23 @@ namespace RiffRadar.Controllers
                 UserProfile = user.UserProfile,
                 UserPlaylists = user.UserPlaylists,
                 TotalGenres = user.Genres.Count,
-                Genres = user.Genres,
-                FilteredTracksDict = user.FilteredTracksDict
+                Genres = user.Genres
             };
+            if (user.FilteredTracksDict != null)
+            {
+                homeIndexView.FilteredTracksDict = userTracks;
+            } 
+            else if (user.TracksDict != null)
+            {
+                homeIndexView.TracksDict = userTracks;
+            }
             return View("Index", homeIndexView);
         }
 
         /// <summary>
         ///     Reset home to look like initial load: no genres selected, tracks unfiltered.
         /// </summary>
+        [HttpPost]
         public IActionResult Reset()
         {
             if (!_memory.TryGetValue("User", out User user))
@@ -178,8 +195,13 @@ namespace RiffRadar.Controllers
         ///     Error handling.
         /// </summary>
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        [Route("Error")]
         public IActionResult Error()
         {
+            var errorDetails = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
+            _logger.LogError($"The path {errorDetails.Path} threw an exception: " +
+                $"{errorDetails.Error}");
+
             return View(new Models.DataTransfer.ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }

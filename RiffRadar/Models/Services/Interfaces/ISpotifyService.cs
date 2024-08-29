@@ -9,7 +9,7 @@ namespace RiffRadar.Models.Services.Interfaces
         Task<Artist> GetArtist(string accessToken, string artistId);
 
         Task<UserPlaylists> GetUserPlaylists(string userid, string accessToken);
-        Task<Playlist> CreatePlaylist(string playlistName, List<string> filteredTracksUris, string userId, string accessToken);
+        Task<Playlist> CreatePlaylist(string playlistName, List<string> trackUris, string userId, string accessToken);
 
     }
 }

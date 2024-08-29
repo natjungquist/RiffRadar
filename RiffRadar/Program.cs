@@ -18,8 +18,6 @@ builder.Services.AddHttpClient<ISpotifyAccountService, SpotifyAccountService>(c 
 });
 builder.Services.AddHttpClient <ISpotifyService, SpotifyService>();
 builder.Services.AddTransient<IGenreManager, GenreManager>();
-
-
 builder.Services.AddMemoryCache();
 
 var app = builder.Build();
