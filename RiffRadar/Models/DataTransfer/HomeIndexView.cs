@@ -7,11 +7,10 @@ namespace RiffRadar.Models.DataTransfer
     {
         public UserProfile? UserProfile { get; set; }
         public UserPlaylists? UserPlaylists { get; set; }
-        public UserTopTracks? UserTopTracks { get; set; }
         public int? TotalGenres { get; set; }
-        public List<string>? AllGenres { get; set; }
-        public List<string>? TopGenres { get; set; }
-        public List<string>? FilteredTracks { get; set; }
+        public List<string>? Genres { get; set; }
+        public ChainingTable? TracksDict { get; set; }
+        public ChainingTable? FilteredTracksDict { get; set; }
     }
    
 }

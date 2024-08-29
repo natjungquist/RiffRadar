@@ -18,6 +18,7 @@ namespace RiffRadar.Models.Data
 
         public UserPlaylists? UserPlaylists { get; set; }
         public ChainingTable? TracksDict { get; set; }
-        public List<string> Genres { get; set; }
+        public List<string>? Genres { get; set; }
+        public ChainingTable? FilteredTracksDict { get; set; }
     }
 }

@@ -39,11 +39,12 @@ namespace RiffRadar.Controllers
             {
                 throw new Exception("Access token is null");
             }
-
-            User user = new User();
-            user.AuthAccessToken = token;
+            User user = new()
+            {
+                AuthAccessToken = token
+            };
             user.UserProfile = await _spotifyService.GetProfile(user.AuthAccessToken);
-            //user.UserPlaylists = await _spotifyService.GetUserPlaylists(clientId, clientSecret, userid, user.AuthAccessToken);
+            user.UserPlaylists = await _spotifyService.GetUserPlaylists(user.UserProfile.id, user.AuthAccessToken);
             user.UserTopTracks = await _spotifyService.GetTopTracks(user.AuthAccessToken, 0);
             user.TracksDict = await _genreManager.GetToptracksDict(user, _spotifyService);
             user.Genres = await _genreManager.GetTopGenres(user.TracksDict);
@@ -66,9 +67,9 @@ namespace RiffRadar.Controllers
             {
                 UserProfile = user.UserProfile,
                 UserPlaylists = user.UserPlaylists,
-                UserTopTracks = user.UserTopTracks,
                 TotalGenres = user.Genres.Count,
-                AllGenres = user.Genres
+                Genres = user.Genres,
+                TracksDict = user.TracksDict
             };
             return View(homeIndexView);
         }
@@ -83,26 +84,86 @@ namespace RiffRadar.Controllers
                 return RedirectToAction("RequestSpotifyUserAuthorization", "Auth");
             }
 
-            ChainingTable filteredHt = _genreManager.FilterByGenres(selectedGenres, user.TracksDict);
-            List<string> filteredTracks = new();
-            foreach (Track track in filteredHt.GetKeys())
-            {
-                filteredTracks.Add(track.name);
-            }
-            
+            // ChainingTable track : [genres]
+            user.FilteredTracksDict = _genreManager.FilterByGenres(selectedGenres, user.TracksDict);
+
             HomeIndexView homeIndexView = new()
             {
                 UserProfile = user.UserProfile,
                 UserPlaylists = user.UserPlaylists,
-                UserTopTracks = user.UserTopTracks,
-                FilteredTracks = filteredTracks
+                TotalGenres = user.Genres.Count,
+                Genres = user.Genres,
+                FilteredTracksDict = user.FilteredTracksDict
             };
             return View("Index", homeIndexView);
         }
 
-        public IActionResult CreatePlaylist(List<string> tracks, string playlistName) { 
-            
-            return View("Index"); 
+        /// <summary>
+        ///     Call the Spotify Web API to create a playlist based on the tracks displayed on screen.
+        /// </summary>
+        public async Task<IActionResult> CreatePlaylist(string playlistName)
+        {
+
+            // TODO validate playlist name
+            //if (playlistName != null) { 
+            //}
+
+            if (!_memory.TryGetValue("User", out User user))
+            {
+                return RedirectToAction("RequestSpotifyUserAuthorization", "Auth");
+            }
+            List<string> FilteredTracksUris = new();
+
+            // check which tracks to look at
+            ChainingTable userTracks = new();
+            if (user.FilteredTracksDict != null)
+            {
+                userTracks = user.FilteredTracksDict;
+            }
+            else if (user.TracksDict != null)
+            {
+
+                userTracks = user.TracksDict;
+            }
+            foreach (Track track in userTracks.GetKeys())
+            {
+                FilteredTracksUris.Add(track.uri);
+            }
+
+            Playlist newPlaylist = await _spotifyService.CreatePlaylist(playlistName, FilteredTracksUris, user.UserProfile.id, user.AuthAccessToken);
+            user.UserPlaylists = await _spotifyService.GetUserPlaylists(user.UserProfile.id, user.AuthAccessToken);
+
+            HomeIndexView homeIndexView = new()
+            {
+                UserProfile = user.UserProfile,
+                UserPlaylists = user.UserPlaylists,
+                TotalGenres = user.Genres.Count,
+                Genres = user.Genres,
+                FilteredTracksDict = user.FilteredTracksDict
+            };
+            return View("Index", homeIndexView);
+        }
+
+        /// <summary>
+        ///     Reset home to look like initial load: no genres selected, tracks unfiltered.
+        /// </summary>
+        public IActionResult Reset()
+        {
+            if (!_memory.TryGetValue("User", out User user))
+            {
+                return RedirectToAction("RequestSpotifyUserAuthorization", "Auth");
+            }
+            user.FilteredTracksDict = null;  //clear out previously filtered tracks
+
+            HomeIndexView homeIndexView = new()
+            {
+                UserProfile = user.UserProfile,
+                UserPlaylists = user.UserPlaylists,
+                TotalGenres = user.Genres.Count,
+                Genres = user.Genres,
+                TracksDict = user.TracksDict
+            };
+            return View("Index", homeIndexView);
         }
 
         /// <summary>

@@ -3,31 +3,36 @@
     --poppins: 'Poppins', sans-serif;
 }
 
-html {
-    font-size: 14px;
-}
-
 @media (min-width: 768px) {
     html {
         font-size: 16px;
     }
 }
 
-html {
-    position: relative;
-    min-height: 100%;
+.app-title {
+    text-align: center;
+    display: block;
+    width: 100%;
+    padding-right: var(--bs-gutter-x, 0.75rem);
+    padding-left: var(--bs-gutter-x, 0.75rem);
+    margin-right: auto;
+    margin-left: auto;
 }
 
-body {
-    margin-bottom: 60px;
+.profile-img {
+    height: 200px;
+    width: 200px;
+    border-radius: 50%;
 }
 
-.d-4 {
-    font-family: var(--poppins);
-    justify-content: center;
+.playlist-imgs {
+    flex: 1;
+    max-width: calc(100% / 10);
+    aspect-ratio: 1/1;
+    object-fit: cover;
 }
 
-.btn-login {
+.btn-post {
     font-family: var(--poppins);
     background-color: mistyrose;
     border: none;
@@ -42,10 +47,17 @@ body {
     cursor: pointer;
 }
 
-.container {
-    width: 100%;
-    padding-right: var(--bs-gutter-x, 0.75rem);
-    padding-left: var(--bs-gutter-x, 0.75rem);
-    margin-right: auto;
-    margin-left: auto;
+.btn-logout {
+    font-family: var(--poppins);
+    background-color: darkslategrey;
+    border: none;
+    border-radius: 25px;
+    color: white;
+    padding: 8px 16px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
 }

@@ -1,53 +1,9 @@
 ﻿@{
     ViewData["Title"] = "Login";
 }
-
-@*logo in left corner
-    little description of the app
-    some lil photos or something
-
-    footer with:
-    terms of use
-    privacy policy
-    help
-    @2024 natjungquist
-
-
-*@
-
-@*    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Title</a>
-
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-
-
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Login">Login</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>*@
-
-
-<div class="d-4">
-    <h1>RiffRadar</h1>
-    <h2>Learn about your listening</h2>
-</div>
-<div>
+<div class="container text-center">
     <form method="post">
-        <button asp-controller="Auth" asp-action="RequestSpotifyUserAuthorization" class="btn-login">
+        <button asp-controller="Auth" asp-action="RequestSpotifyUserAuthorization" class="btn-post">
             Login with Spotify
         </button>
     </form>

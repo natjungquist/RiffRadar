@@ -1,4 +1,5 @@
-﻿using RiffRadar.Models.Data.Responses;
+﻿using RiffRadar.Models.Data;
+using RiffRadar.Models.Data.Responses;
 using RiffRadar.Models.Services.Interfaces;
 using System.Text;
 using System.Text.Json;
@@ -11,7 +12,7 @@ namespace RiffRadar.Models.Services
         private readonly HttpClient _httpClient;
         public SpotifyService(HttpClient httpClient)
         {
-            _httpClient = httpClient; //will be injected at runtime
+            _httpClient = httpClient; 
         }
 
         public async Task<UserProfile> GetProfile(string accessToken)
@@ -85,7 +86,7 @@ namespace RiffRadar.Models.Services
             _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(
                 "Bearer", accessToken);
 
-            string uri = $"{uriBase}/users/{userid}/playlists";
+            string uri = $"{uriBase}/users/{userid}/playlists?limit=10";
             var response = await _httpClient.GetAsync(uri);
             response.EnsureSuccessStatusCode();
 
@@ -101,13 +102,15 @@ namespace RiffRadar.Models.Services
             }
         }
 
-        public async Task<Playlist> createPlaylist(string playlistName, List<Track> tracks, string userId, string accessToken)
+        public async Task<Playlist> CreatePlaylist(string playlistName, List<string> filteredTracksUris, string userId, string accessToken)
         {
-            Playlist newPlaylist = await createEmptyPlaylist(playlistName, userId, accessToken);
+            Playlist newPlaylist = await CreateEmptyPlaylist(playlistName, userId, accessToken);
+            string snapshot_id = await AddTracks(newPlaylist.id, filteredTracksUris, accessToken);
+
             return newPlaylist;
         }
 
-        public async Task<Playlist> createEmptyPlaylist(string playlistName, string userId, string accessToken)
+        public async Task<Playlist> CreateEmptyPlaylist(string playlistName, string userId, string accessToken)
         {
             _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(
                 "Bearer", accessToken);
@@ -117,7 +120,7 @@ namespace RiffRadar.Models.Services
             var requestBody = new
             {
                 name = playlistName,
-                description = "New playlist description",  // You can customize this
+                description = "Playlist made by RiffRadar",  
                 @public = false                            // Use @public to escape the reserved keyword
             };
             var jsonBody = JsonSerializer.Serialize(requestBody);
@@ -137,10 +140,31 @@ namespace RiffRadar.Models.Services
             }
         }
 
-        public async Task<string> addTracks(string playlistId)
+        public async Task<string> AddTracks(string playlistId, List<string> trackUris, string accessToken)
         {
-            string snapshot_id = "";
-            return snapshot_id;
+            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(
+                "Bearer", accessToken);
+
+            string uri = $"{uriBase}/playlists/{playlistId}/tracks";
+
+            var requestBody = new
+            {
+                uris = trackUris
+            };
+            var jsonBody = JsonSerializer.Serialize(requestBody);
+            var content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync(uri, content);
+            response.EnsureSuccessStatusCode();
+
+            var responseStream = await response.Content.ReadAsStringAsync();
+            if (!string.IsNullOrEmpty(responseStream))
+            {
+                return responseStream;
+            }
+            else
+            {
+                throw new Exception("error adding tracks to playlist");
+            }
         }
 
     }

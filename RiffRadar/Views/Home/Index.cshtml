@@ -1,4 +1,5 @@
-﻿@{
+﻿@using RiffRadar.Models.Data.Responses;
+@{
     ViewData["Title"] = "Profile";
 }
 
@@ -6,47 +7,141 @@
 
 <div class="container">
     <br />
-    <h4>Hello, @Model.UserProfile.display_name.</h4>
 
-    @*    <div>
-    <img src="@Url.Content(Model.UserProfile.images[0].url)" alt="Profile Image"
-    style="height=200px;
-    width:200px;
-    border-radius:50%;" />
-    </div>*@
-
-    <div>
-        Welcome to RiffRadar!
-        Here you can see your top genres and create playlists of your favorite tracks, filtered by genre.
-    </div>
-
-    <div>
-        <h4>What's on your radar?</h4>
-    </div>
-
-    @if (Model.TotalGenres != null) {
-        <h5>Your top songs consist of @Model.TotalGenres total genres.</h5>
-    }
-</div>
-
-<div class="container">
-    @if (Model.FilteredTracks != null)
-    {
-        <div>
-            <h5>Here are your top tracks filtered on the genres you selected.</h5>
-            <table>
-                <tbody>
-                    @foreach (string track in Model.FilteredTracks)
-                    {
-                        <tr>
-                            <td>@track</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+    <div class="row">
+        <div class="col-md-6">
+            <h4>Hello, @Model.UserProfile.display_name.</h4>
+            <p>
+                Welcome to RiffRadar!
+                Here you can see your top genres and create playlists of your favorite tracks, filtered by genre.
+            </p>
+            <h5>What's on your radar?</h5>
+            @if (Model.TotalGenres != null) {
+                <ul>
+                    <li>Your top songs consist of @Model.TotalGenres total genres. </li>
+                    <li>The genre you jam to most is: </li>
+                    <li>The track you listen to most is: </li>
+                    <li>Your @Model.UserPlaylists.items.Length most recent playlists....</li>
+                </ul>
+            }
         </div>
-        <button class="btn-login" type="submit" data-bs-toggle="modal" data-bs-target="#playlistPopup">Create Playlist</button>
-    }
+        <div class="col-md-1">
+            <br />
+        </div>
+        <div class="col-md-5">
+            <img src="@Url.Content(Model.UserProfile.images[0].url)" alt="Profile Image" class="profile-img mt-2"/>
+            
+            <form asp-action="Logout" asp-controller="Home" method="post">
+                <div class="text-center">
+                    <br>
+                    <button class="btn-logout" type="submit">Logout</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <h4>Playlists</h4>
+            <div class="container" style="display: flex; justify-content: space-between; gap: 10px;">
+                @foreach (Playlist playlist in Model.UserPlaylists.items)
+                {
+                    <img src="@Url.Content(playlist.images[0].url)" alt="Track Image" class="playlist-imgs" />
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="mt-3">
+                <h4>Genres</h4>
+                <p>Select which genres you'd like to include in a playlist:</p>
+                <form asp-action="FilterByGenre" asp-controller="Home" method="post">
+                    @foreach (var genre in Model.Genres)
+                    {
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="selectedGenres" value="@genre" />
+                            <label class="form-check-label">@genre</label>
+                        </div>
+                    }
+                    <br />
+                    <div class="d-flex">
+                        <button class="btn-post" type="submit">Submit</button>
+                    </div>
+                </form>
+                
+                <form asp-action="Reset" asp-controller="Home" method="post">
+                    <div class="mt-2 mb-2">
+                        <button class="btn-post" type="submit">Reset</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="mt-3">
+                <h4>Tracks</h4>
+                @if (Model.FilteredTracksDict != null)
+                {
+                    <p>Here are your top tracks filtered on the genres you selected.</p>
+                    <div>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Track name</th>
+                                    <th scope="col">Artist</th>
+                                    <th scope="col">Genres</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (Track track in Model.FilteredTracksDict.GetKeys())
+                                {
+                                    var genres = string.Join(", ", @Model.FilteredTracksDict.GetValues(track));
+
+                                    <tr>
+                                        <td>@track.name</td>
+                                        <td>@track.artists[0].name</td>
+                                        <td> @genres</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else if (Model.TracksDict != null)
+                {
+                    <p>Here are your favorite tracks from the past 6 months.</p>
+                    <div>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Track name</th>
+                                    <th scope="col">Artist</th>
+                                    <th scope="col">Genres</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (Track track in Model.TracksDict.GetKeys())
+                                {
+                                    var genres = string.Join(", ", @Model.TracksDict.GetValues(track));
+
+                                    <tr>
+                                        <td>@track.name</td>
+                                        <td>@track.artists[0].name</td>
+                                        <td> @genres</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+            
+            <div class="mt-2 mb-2 text-center">
+                <button class="btn-post" type="submit" data-bs-toggle="modal" data-bs-target="#playlistPopup">Create Playlist</button>
+            </div> 
+        </div>
+    </div>
 </div>
 
 <div class="modal fade" id="playlistPopup" tabindex="-1" aria-labelledby="playlistPopupLabel" aria-hidden="true">
@@ -56,39 +151,18 @@
                 <h5 class="modal-title" id="playlistPopupLabel">Give your playlist a name</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <form asp-action="CreatePlaylist" asp-controller="Home" method="post">
+            <div class="modal-body text-center">
+                <form id="createPlaylistForm" asp-action="CreatePlaylist" asp-controller="Home" method="post">
                     <div class="mb-3">
                         <label for="playlistName" class="form-label"></label>
                         <input type="text" class="form-control" id="playlistName" name="playlistName" />
+                        <div class="text-danger" id="error-message" style="display:none;">Please specify a playlist name.</div>
                     </div>
-                    <button type="submit" class="btn btn-login">Create</button>
+                    <button type="submit" class="btn-post">Create</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
 
-
-<div class="container">
-    @*search for which genre to include with a checkbox list*@
-    @if (Model.AllGenres != null)
-    {
-        <div class="d-4">
-            <p>Select which genres you'd like to include.</p>
-
-            <form asp-action="FilterByGenre" asp-controller="Home" method="post">
-                @foreach (var genre in Model.AllGenres)
-                {
-                    <div>
-                        <input type="checkbox" name="selectedGenres" value="@genre" />
-                        <label>@genre</label>
-                    </div>
-                }
-
-                <button class="btn-login" type="submit">Submit</button>
-            </form>
-        </div>
-    }
-</div>
-
+<script src="~/js/home.js" asp-append-version="true"></script>
