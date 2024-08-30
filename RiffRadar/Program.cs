@@ -4,6 +4,11 @@ using Microsoft.Extensions.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    serverOptions.ListenAnyIP(8080); 
+});
+
 builder.Configuration.AddJsonFile("secrets.json", optional: true, reloadOnChange: true);
 
 // Add services to the container.

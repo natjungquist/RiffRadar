@@ -20,5 +20,7 @@ namespace RiffRadar.Models.Data
         public ChainingTable? TracksDict { get; set; }
         public List<string>? Genres { get; set; }
         public ChainingTable? FilteredTracksDict { get; set; }
+        public Track? TopTrack { get; set; }
+        public string? TopGenre { get; set; }
     }
 }

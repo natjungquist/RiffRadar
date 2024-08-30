@@ -19,8 +19,8 @@
             @if (Model.TotalGenres != null) {
                 <ul>
                     <li>Your top songs consist of @Model.TotalGenres total genres. </li>
-                    <li>The genre you jam to most is: </li>
-                    <li>The track you listen to most is: </li>
+                    <li>The genre you jam to most is: @Model.TopGenre</li>
+                    <li>The track you listen to most is: @Model.TopTrack.name by @Model.TopTrack.artists[0].name</li>
                     <li>Your @Model.UserPlaylists.items.Length most recent playlists....</li>
                 </ul>
             }
@@ -61,7 +61,9 @@
                     @foreach (var genre in Model.Genres)
                     {
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="selectedGenres" value="@genre" />
+                            <input class="form-check-input" type="checkbox" name="selectedGenres" value="@genre"
+                               @(Model.SelectedGenres != null && Model.SelectedGenres.Contains(genre) ? "checked" : "")
+                               @(Model.SelectedGenres != null ? "disabled" : "") />
                             <label class="form-check-label">@genre</label>
                         </div>
                     }
@@ -73,7 +75,7 @@
                 
                 <form asp-action="Reset" asp-controller="Home" method="post">
                     <div class="mt-2 mb-2">
-                        <button class="btn-post" type="submit">Reset</button>
+                        <button class="btn-logout" type="submit">Reset</button>
                     </div>
                 </form>
             </div>
@@ -81,6 +83,10 @@
         <div class="col-md-8">
             <div class="mt-3">
                 <h4>Tracks</h4>
+                @if (ViewBag.CreatedMsg != null)
+                {
+                    <p class="text-success">@ViewBag.CreatedMsg</p>
+                }
                 @if (Model.FilteredTracksDict != null)
                 {
                     <p>Here are your top tracks filtered on the genres you selected.</p>

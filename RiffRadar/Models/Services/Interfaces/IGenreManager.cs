@@ -1,4 +1,5 @@
 ﻿using RiffRadar.Models.Data;
+using RiffRadar.Models.Data.Responses;
 
 namespace RiffRadar.Models.Services.Interfaces
 {
@@ -7,5 +8,6 @@ namespace RiffRadar.Models.Services.Interfaces
         Task<ChainingTable> GetToptracksDict(User user, ISpotifyService spotifyService);
         Task<List<string>> GetTopGenres(ChainingTable tracksDict);
         ChainingTable FilterByGenres(List<string> selectedGenres, ChainingTable genresDict);
+        (Track, string) GetMostPopularTrack(ChainingTable tracksDict);
     }
 }

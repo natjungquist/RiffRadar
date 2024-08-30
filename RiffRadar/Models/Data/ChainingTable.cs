@@ -11,6 +11,10 @@ namespace RiffRadar.Models.Data
             ht = new();
         }
 
+        public int Length()
+        {
+            return ht.Count;
+        }
         public bool isEmpty()
         {
             return ht.Count == 0;

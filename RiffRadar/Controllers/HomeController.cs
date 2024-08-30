@@ -49,6 +49,9 @@ namespace RiffRadar.Controllers
             user.UserTopTracks = await _spotifyService.GetTopTracks(user.AuthAccessToken, 0);
             user.TracksDict = await _genreManager.GetToptracksDict(user, _spotifyService);
             user.Genres = await _genreManager.GetTopGenres(user.TracksDict);
+            (Track topTrack, string topGenre)  = _genreManager.GetMostPopularTrack(user.TracksDict);
+            user.TopTrack = topTrack;
+            user.TopGenre = topGenre;
             _memory.Set("User", user, TimeSpan.FromMinutes(60));
 
             return RedirectToAction("Index");
@@ -71,7 +74,9 @@ namespace RiffRadar.Controllers
                 UserPlaylists = user.UserPlaylists,
                 TotalGenres = user.Genres.Count,
                 Genres = user.Genres,
-                TracksDict = user.TracksDict
+                TracksDict = user.TracksDict,
+                TopTrack = user.TopTrack,
+                TopGenre = user.TopGenre
             };
             return View(homeIndexView);
         }
@@ -96,7 +101,10 @@ namespace RiffRadar.Controllers
                 UserPlaylists = user.UserPlaylists,
                 TotalGenres = user.Genres.Count,
                 Genres = user.Genres,
-                FilteredTracksDict = user.FilteredTracksDict
+                SelectedGenres = selectedGenres,
+                FilteredTracksDict = user.FilteredTracksDict,
+                TopTrack = user.TopTrack,
+                TopGenre = user.TopGenre
             };
             return View("Index", homeIndexView);
         }
@@ -105,7 +113,7 @@ namespace RiffRadar.Controllers
         ///     Call the Spotify Web API to create a playlist based on the tracks displayed on screen.
         /// </summary>
         [HttpPost]
-        public async Task<IActionResult> CreatePlaylist(string playlistName)
+        public async Task<IActionResult> CreatePlaylist(string playlistName, List<string> selectedGenres)
         {
             // validate playlist name
             if (string.IsNullOrEmpty(playlistName)) {
@@ -124,30 +132,34 @@ namespace RiffRadar.Controllers
                 return RedirectToAction("RequestSpotifyUserAuthorization", "Auth");
             }
 
-            // check which tracks to look at
-            List<string> trackUris = new();
-            ChainingTable userTracks = new();
-            if (user.FilteredTracksDict != null)
+            //validate tracks
+            if ((user.TracksDict == null || user.TracksDict.isEmpty()) && 
+                (user.FilteredTracksDict == null || user.FilteredTracksDict.isEmpty()))
             {
-                userTracks = user.FilteredTracksDict;
+                ViewBag.ErrorTitle = "Invalid input.";
+                ViewBag.ErrorMessage = "The playlist cannot be created. It must have a tracks to add to it.";
+                ErrorViewModel err = new()
+                {
+                    RequestId = "404"
+                };
+                return View("Error", err);
             }
-            else if (user.TracksDict != null)
-            {
-                userTracks = user.TracksDict;
-            }
-            foreach (Track track in userTracks.GetKeys())
-            {
-                trackUris.Add(track.uri);
-            }
+
+            ChainingTable userTracks = setTracks(user);
+            List<string> trackUris = getUris(userTracks);
             Playlist newPlaylist = await _spotifyService.CreatePlaylist(playlistName, trackUris, user.UserProfile.id, user.AuthAccessToken);
             user.UserPlaylists = await _spotifyService.GetUserPlaylists(user.UserProfile.id, user.AuthAccessToken);
+            ViewBag.CreatedMsg = $"Playlist {playlistName} was created.";
 
             HomeIndexView homeIndexView = new()
             {
                 UserProfile = user.UserProfile,
                 UserPlaylists = user.UserPlaylists,
                 TotalGenres = user.Genres.Count,
-                Genres = user.Genres
+                Genres = user.Genres,
+                SelectedGenres = selectedGenres,
+                TopTrack = user.TopTrack,
+                TopGenre = user.TopGenre
             };
             if (user.FilteredTracksDict != null)
             {
@@ -158,6 +170,31 @@ namespace RiffRadar.Controllers
                 homeIndexView.TracksDict = userTracks;
             }
             return View("Index", homeIndexView);
+        }
+
+        private ChainingTable setTracks(User user)
+        {
+            if (user.FilteredTracksDict != null)
+            {
+                return user.FilteredTracksDict;
+            }
+            else if (user.TracksDict != null)
+            {
+                return user.TracksDict;
+            }
+            else
+            {
+                throw new Exception("No tracks to create playlist with.");
+            }
+        }
+        private List<string> getUris(ChainingTable userTracks)
+        {
+            List<string> trackUris = new();
+            foreach (Track track in userTracks.GetKeys())
+            {
+                trackUris.Add(track.uri);
+            }
+            return trackUris;
         }
 
         /// <summary>
@@ -178,7 +215,9 @@ namespace RiffRadar.Controllers
                 UserPlaylists = user.UserPlaylists,
                 TotalGenres = user.Genres.Count,
                 Genres = user.Genres,
-                TracksDict = user.TracksDict
+                TracksDict = user.TracksDict,
+                TopTrack = user.TopTrack,
+                TopGenre = user.TopGenre
             };
             return View("Index", homeIndexView);
         }

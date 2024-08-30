@@ -26,14 +26,18 @@ namespace RiffRadar.Models.Services
             return result;
         }
 
-        
+        private Track[] SortByPopularity(Track[] items)
+        {
+            return items.OrderByDescending(t => t.popularity).ToArray();
+        }
         public async Task<ChainingTable> GetToptracksDict(User user, ISpotifyService spotifyService)
         {
             // returns a ChainingTable of the user's top genres based on their top tracks' artist's genres
             // each key is the top track, value is a list of its associated genres
 
             ChainingTable tracksDict = new();
-            foreach (Track track in user.UserTopTracks.items)
+            Track[] topTracksOrdered = SortByPopularity(user.UserTopTracks.items);
+            foreach (Track track in topTracksOrdered)
             {
                 foreach (Artist artist in track.artists)
                 {
@@ -64,6 +68,22 @@ namespace RiffRadar.Models.Services
             List<string> genres = genresHs.ToList();
 
             return genres;
+        }
+
+        public (Track, string) GetMostPopularTrack(ChainingTable tracksDict)
+        {
+            foreach (Track track in tracksDict.GetKeys())
+            {
+                if (track.popularity == 100)
+                {
+                    return (track, tracksDict.GetValues(track)[0]);
+                }
+            }
+            Track none = new()
+            {
+                name = "Does not exist"
+            };
+            return (none, "Does not exist");
         }
     }
 }
