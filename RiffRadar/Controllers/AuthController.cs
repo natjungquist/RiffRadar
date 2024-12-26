@@ -10,6 +10,7 @@ namespace RiffRadar.Controllers
         private readonly ISpotifyAccountService _spotifyAccountService;
         private readonly IConfiguration _configuration;
         private string redirectUri = "https://localhost:44350/auth/callback";
+        //private string redirectUri = "https://riffradar2024-08-30.azurewebsites.net/auth/callback";
         public AuthController(IConfiguration configuration, ISpotifyAccountService spotifyAccountService)
         {
             _configuration = configuration;

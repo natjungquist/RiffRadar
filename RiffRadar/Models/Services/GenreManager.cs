@@ -72,18 +72,32 @@ namespace RiffRadar.Models.Services
 
         public (Track, string) GetMostPopularTrack(ChainingTable tracksDict)
         {
+            Track mostPopularTrack = null;
+            int highestPopularity = 0;
             foreach (Track track in tracksDict.GetKeys())
             {
-                if (track.popularity == 100)
+                if (track.popularity > highestPopularity)
                 {
-                    return (track, tracksDict.GetValues(track)[0]);
+                    mostPopularTrack = track;
+                    highestPopularity = track.popularity;
                 }
             }
-            Track none = new()
+
+            if (mostPopularTrack == null)
             {
-                name = "Does not exist"
-            };
-            return (none, "Does not exist");
+                Artist noArtist = new()
+                {
+                    name = "Does not exist"
+                };
+                Track none = new()
+                {
+                    name = "Does not exist",
+                    artists = new Artist[] { noArtist }
+                };
+                return (none, "Does not exist");
+            }
+         
+            return (mostPopularTrack, tracksDict.GetValues(mostPopularTrack)[0]);
         }
     }
 }
