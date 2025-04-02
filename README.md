@@ -1,2 +1,2 @@
 # RiffRadar
-A simple fullstack .NET web application that consumes the Spotify Web API.
+A fullstack .NET web application that allows you to filter your top tracks by genre and make playlists!
